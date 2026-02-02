@@ -562,6 +562,21 @@ namespace my
 		}
 
 		//
+		// WM_DPICHANGEDを処理します。
+		//
+		LRESULT on_dpi_changed(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
+		{
+			// 一旦スリム化を解除します。
+			my::modify_style(hwnd, 0, WS_CAPTION);
+
+			// スリムバーに設定を適用します。
+			// これにより、再びスリム化されます。
+			apply_config();
+
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
+		}
+
+		//
 		// WM_WINDOWPOSCHANGINGを処理します。
 		// キャプションを外したので最大化位置を手動で調整します。
 		//
@@ -871,6 +886,12 @@ namespace my
 					ScopeText scope_text(L"WM_STYLECHANGED");
 
 					return on_style_changed(hwnd, message, w_param, l_param);
+				}
+			case WM_DPICHANGED:
+				{
+					ScopeText scope_text(L"WM_DPICHANGED");
+
+					return on_dpi_changed(hwnd, message, w_param, l_param);
 				}
 			case WM_WINDOWPOSCHANGING:
 				{
