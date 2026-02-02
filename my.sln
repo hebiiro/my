@@ -14,51 +14,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{DDB4EF12-C
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{B175B2AB-8F9D-46AB-B0CD-71AF2FA28170}"
-	ProjectSection(SolutionItems) = preProject
-		detours.hpp = detours.hpp
-		dialog.hpp = dialog.hpp
-		dialog2.hpp = dialog2.hpp
-		file_update_checker.hpp = file_update_checker.hpp
-		format.hpp = format.hpp
-		gdi.hpp = gdi.hpp
-		gdiplus.hpp = gdiplus.hpp
-		json.hpp = json.hpp
-		label.hpp = label.hpp
-		layout.hpp = layout.hpp
-		lockable.hpp = lockable.hpp
-		mfc.hpp = mfc.hpp
-		shortcut_key.hpp = shortcut_key.hpp
-		slimbar.hpp = slimbar.hpp
-		str_utils.hpp = str_utils.hpp
-		tools.hpp = tools.hpp
-		trace.hpp = trace.hpp
-		trace_to_file.hpp = trace_to_file.hpp
-		uah_menu.hpp = uah_menu.hpp
-		utils.hpp = utils.hpp
-		window.hpp = window.hpp
-		window2.hpp = window2.hpp
-		window_interceptor.hpp = window_interceptor.hpp
-		win_utils.hpp = win_utils.hpp
-		win_wrap.hpp = win_wrap.hpp
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aviutl", "aviutl", "{C8324D4D-CDE3-49A1-8569-123CA8665C48}"
-	ProjectSection(SolutionItems) = preProject
-		aviutl\aviutl_internal.hpp = aviutl\aviutl_internal.hpp
-		aviutl\exedit_internal.hpp = aviutl\exedit_internal.hpp
-		aviutl\plugin_window.hpp = aviutl\plugin_window.hpp
-		aviutl\plugin_window_extension.hpp = aviutl\plugin_window_extension.hpp
-		aviutl\slider_panel.hpp = aviutl\slider_panel.hpp
-		aviutl\window_holder_extension.hpp = aviutl\window_holder_extension.hpp
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "my", "my.vcxproj", "{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}"
 EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Debug|x64.ActiveCfg = Debug|x64
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Debug|x64.Build.0 = Debug|x64
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Debug|x86.ActiveCfg = Debug|Win32
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Debug|x86.Build.0 = Debug|Win32
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Release|x64.ActiveCfg = Release|x64
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Release|x64.Build.0 = Release|x64
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Release|x86.ActiveCfg = Release|Win32
+		{80A736CB-49F7-4BCA-8A43-78C4D701B3C7}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{C8324D4D-CDE3-49A1-8569-123CA8665C48} = {B175B2AB-8F9D-46AB-B0CD-71AF2FA28170}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {79076051-A224-4A18-885D-D418FC39E40F}
