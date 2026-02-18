@@ -71,6 +71,8 @@ namespace my
 				int32_t* layer_width = nullptr;
 				int32_t* layer_height = nullptr;
 				int32_t* layer_visible_count = nullptr;
+				int32_t* top_visible_frame = nullptr;
+				int32_t* top_visible_layer = nullptr;
 				int32_t* aviutl_frame_number = nullptr;
 				int32_t* exedit_frame_number = nullptr;
 				int32_t* exedit_current_frame = nullptr;
@@ -93,6 +95,8 @@ namespace my
 			{
 				int32_t (CDECL *show_color_dialog)(uint32_t u1, COLORREF* color, uint32_t u3) = nullptr;
 				int64_t (CDECL *frame_to_x)(int32_t frame) = nullptr;
+				int64_t (CDECL *x_to_frame)(int32_t x) = nullptr;
+				int64_t (CDECL *y_to_layer)(int32_t y) = nullptr;
 				void (CDECL* push_undo)() = nullptr;
 				void (CDECL* create_undo)(int32_t object_index, uint32_t flags) = nullptr;
 				void (CDECL* hide_controls)() = nullptr;
@@ -108,12 +112,15 @@ namespace my
 				BOOL (CDECL* set_current_object)(int32_t object_index) = nullptr;
 				BOOL (CDECL* set_scene)(int32_t scene_index, AviUtl::FilterPlugin* fp, AviUtl::EditHandle* editp) = nullptr;
 				void (CDECL* draw_item)(HDC dc, int32_t object_index) = nullptr;
-				void (CDECL* redraw_setting_dialog)(int32_t object_index) = nullptr;
+				void (CDECL* redraw_exedit_window)(HWND exedit_window) = nullptr;
 				void (CDECL* redraw_layer)(int32_t layer_index) = nullptr;
 				void (CDECL* redraw_layers)(int32_t flags[]) = nullptr;
 				void (CDECL* redraw_timeline)() = nullptr;
+				void (CDECL* redraw_setting_dialog)(int32_t object_index) = nullptr;
 				int32_t (CDECL* erase_midpt)(int32_t object_index, int32_t frame) = nullptr;
 				int32_t (CDECL* update_object_table)() = nullptr;
+				void (CDECL* set_top_visible_frame)(int32_t frame) = nullptr;
+				void (CDECL* set_top_visible_layer)(int32_t layer) = nullptr;
 			} function;
 		} address;
 
@@ -164,6 +171,8 @@ namespace my
 			assign_addr(address.variable.layer_width, exedit + 0x001A52FC);
 			assign_addr(address.variable.layer_height, exedit + 0x000A3E20);
 			assign_addr(address.variable.layer_visible_count, exedit + 0x000A3FBC);
+			assign_addr(address.variable.top_visible_frame, exedit + 0x001A52F0);
+			assign_addr(address.variable.top_visible_layer, exedit + 0x001A5308);
 			assign_addr(address.variable.aviutl_frame_number, exedit + 0x0014D3A0);
 			assign_addr(address.variable.exedit_frame_number, exedit + 0x001A5318);
 			assign_addr(address.variable.exedit_current_frame, exedit + 0x001A5304);
@@ -184,6 +193,8 @@ namespace my
 
 			assign_addr(address.function.show_color_dialog, exedit + 0x0004D2A0);
 			assign_addr(address.function.frame_to_x, exedit + 0x00032BD0);
+			assign_addr(address.function.x_to_frame, exedit + 0x00032B70);
+			assign_addr(address.function.y_to_layer, exedit + 0x00032C10);
 			assign_addr(address.function.push_undo, exedit + 0x0008D150);
 			assign_addr(address.function.create_undo, exedit + 0x0008D290);
 			assign_addr(address.function.hide_controls, exedit + 0x00030500);
@@ -199,12 +210,15 @@ namespace my
 			assign_addr(address.function.set_current_object, exedit + 0x000305E0);
 			assign_addr(address.function.set_scene, exedit + 0x0002BA60);
 			assign_addr(address.function.draw_item, exedit + 0x00037060);
-			assign_addr(address.function.redraw_setting_dialog, exedit + 0x00039490);
+			assign_addr(address.function.redraw_exedit_window, exedit + 0x000387F0);
 			assign_addr(address.function.redraw_layer, exedit + 0x00039290);
 			assign_addr(address.function.redraw_layers, exedit + 0x000392F0);
 			assign_addr(address.function.redraw_timeline, exedit + 0x00039230);
+			assign_addr(address.function.redraw_setting_dialog, exedit + 0x00039490);
 			assign_addr(address.function.erase_midpt, exedit + 0x00034A30);
 			assign_addr(address.function.update_object_table, exedit + 0x0002B0F0);
+			assign_addr(address.function.set_top_visible_frame, exedit + 0x00038C70);
+			assign_addr(address.function.set_top_visible_layer, exedit + 0x00038B70);
 
 			return TRUE;
 		}
@@ -331,6 +345,16 @@ namespace my
 		int32_t get_layer_visible_count() { return *address.variable.layer_visible_count; }
 
 		//
+		// 拡張編集ウィンドウ内で表示されている最初のフレーム番号を返します。
+		//
+		int32_t get_top_visible_frame() { return *address.variable.top_visible_frame; }
+
+		//
+		// 拡張編集ウィンドウ内で表示されている最初のレイヤー番号を返します。
+		//
+		int32_t get_top_visible_layer() { return *address.variable.top_visible_layer; }
+
+		//
 		// aviutlのフレーム総数を返します。
 		//
 		int32_t get_aviutl_frame_number() { return *address.variable.aviutl_frame_number; }
@@ -415,6 +439,16 @@ namespace my
 		// フレーム番号を拡張編集ウィンドウ内のX座標(ピクセル単位)に変換します。
 		//
 		int64_t frame_to_x(int32_t frame) { return address.function.frame_to_x(frame); }
+
+		//
+		// 拡張編集ウィンドウ内のX座標(ピクセル単位)をフレーム番号に変換して返します。
+		//
+		int64_t x_to_frame(int32_t x) { return address.function.x_to_frame(x); }
+
+		//
+		// 拡張編集ウィンドウ内のY座標(ピクセル単位)をレイヤー番号に変換して返します。
+		//
+		int64_t y_to_layer(int32_t y) { return address.function.y_to_layer(y); }
 
 		//
 		// 新しいアンドゥを作成します。
@@ -502,9 +536,9 @@ namespace my
 		void draw_item(HDC dc, int32_t object_index) { address.function.draw_item(dc, object_index); }
 
 		//
-		// 設定ダイアログを再描画します。
+		// 拡張編集ウィンドウを再描画します。
 		//
-		void redraw_setting_dialog(int32_t object_index) { address.function.redraw_setting_dialog(object_index); }
+		void redraw_exedit_window(HWND exedit_window) { address.function.redraw_exedit_window(exedit_window); }
 
 		//
 		// 指定されたレイヤーを再描画します。
@@ -520,6 +554,21 @@ namespace my
 		// 拡張編集ウィンドウを再描画します。
 		//
 		void redraw_timeline() { address.function.redraw_timeline(); }
+
+		//
+		// 設定ダイアログを再描画します。
+		//
+		void redraw_setting_dialog(int32_t object_index) { address.function.redraw_setting_dialog(object_index); }
+
+		//
+		// タイムラインの最初に表示されるフレーム番号をセットします。
+		//
+		void set_top_visible_frame(int32_t frame) { return address.function.set_top_visible_frame(frame); }
+
+		//
+		// タイムラインの最初に表示されるレイヤー番号をセットします。
+		//
+		void set_top_visible_layer(int32_t layer) { return address.function.set_top_visible_layer(layer); }
 
 		//
 		// 拡張編集ウィンドウを再描画します。
