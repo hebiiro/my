@@ -2,6 +2,20 @@
 
 namespace my::hook
 {
+	struct detours
+	{
+		detours()
+		{
+			DetourTransactionBegin();
+			DetourUpdateThread(::GetCurrentThread());
+		}
+
+		~detours()
+		{
+			DetourTransactionCommit();
+		}
+	};
+
 	template <typename T>
 	LONG attach(T& hooker)
 	{
