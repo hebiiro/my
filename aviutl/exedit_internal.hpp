@@ -127,6 +127,9 @@ namespace my
 				BOOL (CDECL* is_scene_alpha_enabled)(int32_t scene_index) = nullptr;
 				LPSTR (CDECL* filter_to_string)(LPSTR buffer, ExEdit::Object* object, int32_t filter_index, uint32_t is_midpt) = nullptr;
 				BOOL (CDECL* save_exa)(int32_t object_index, int32_t filter_index, LPCSTR file_name) = nullptr;
+				void (CDECL* erase_object)(int32_t object_index) = nullptr;
+				int32_t (CDECL* load_exo_internal)(LPCSTR file_name, int32_t frame, int32_t layer) = nullptr;
+				void (CDECL* set_frame_number)(int32_t frame, AviUtl::EditHandle* editp, AviUtl::FilterPlugin* fp) = nullptr;
 			} function;
 		} address;
 
@@ -167,7 +170,7 @@ namespace my
 			assign_addr(address.variable.object_count, exedit + 0x00146250);
 			assign_addr(address.variable.sorted_object_count, exedit + 0x0015918C);
 			assign_addr(address.variable.exdata_table, exedit + 0x001E0FA8);
-			assign_addr(address.variable.next_object_table, exedit + 0x001592d8);
+			assign_addr(address.variable.next_object_table, exedit + 0x001592D8);
 			assign_addr(address.variable.object_slection_table, exedit + 0x00179230);
 			assign_addr(address.variable.object_selection_count, exedit + 0x00167D88);
 			assign_addr(address.variable.all_layer_setting_table, exedit + 0x00188498);
@@ -231,6 +234,9 @@ namespace my
 			assign_addr(address.function.is_scene_alpha_enabled, exedit + 0x0002BA00);
 			assign_addr(address.function.filter_to_string, exedit + 0x00028830);
 			assign_addr(address.function.save_exa, exedit + 0x00028CA0);
+			assign_addr(address.function.erase_object, exedit + 0x00034500);
+			assign_addr(address.function.load_exo_internal, exedit + 0x00029200);
+			assign_addr(address.function.set_frame_number, exedit + 0x00045B20);
 
 			return TRUE;
 		}
@@ -611,6 +617,23 @@ namespace my
 		// 指定されたオブジェクトの指定されたフィルタをexaファイルに書き込みます。
 		//
 		BOOL save_exa(int32_t object_index, int32_t filter_index, LPCSTR file_name) { return address.function.save_exa(object_index, filter_index, file_name); }
+
+		//
+		// 指定されたオブジェクトを削除します。
+		//
+		void erase_object(int32_t object_index) { return address.function.erase_object(object_index); }
+
+		//
+		// 指定された場所に指定されたexoファイルを読み込み、新しいフレーム数を返します。
+		// この関数を実行する前に、push_undo()を実行する必要があります。
+		// この関数を実行した後に、set_frame_number()などを実行する必要があります。
+		//
+		int32_t load_exo_internal(LPCSTR file_name, int32_t frame, int32_t layer) { return address.function.load_exo_internal(file_name, frame, layer); }
+
+		//
+		// フレーム数をセットします。
+		//
+		void set_frame_number(int32_t frame, AviUtl::EditHandle* editp, AviUtl::FilterPlugin* fp) { return address.function.set_frame_number(frame, editp, fp); }
 
 		//
 		// 拡張編集ウィンドウを再描画します。
