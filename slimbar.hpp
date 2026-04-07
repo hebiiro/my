@@ -174,9 +174,10 @@ namespace my
 
 			// 一番右のボタンのアイコン矩形を算出します。
 			auto icon_rc = button_rc;
-			::InflateRect(&icon_rc, 0, -4);
 			auto icon_size = my::get_height(icon_rc);
-			icon_rc = centering(icon_rc, icon_size);
+			icon_rc.left = (icon_rc.left + icon_rc.right) / 2 - icon_size / 2;
+			icon_rc.right = icon_rc.left + icon_size;
+			::InflateRect(&icon_rc, -2, -2);
 
 			// ボタンを走査します。
 			for (auto& button : buttons)
@@ -744,7 +745,6 @@ namespace my
 
 				// アイコン矩形を取得します。
 				auto icon_rc = button.icon_rc;
-				::InflateRect(&icon_rc, 2, 2);
 
 				// アイコンのパートIDです。
 				auto part_id = 0;
@@ -757,7 +757,7 @@ namespace my
 				case HTSYSMENU:
 					{
 						// システムメニューアイコンを描画します。
-						auto icon = (HICON)::GetClassLongPtr(hwnd, GCLP_HICON);
+						auto icon = (HICON)::GetClassLongPtr(hwnd, GCLP_HICONSM);
 						auto icon_size = my::get_height(icon_rc);
 						::DrawIconEx(dc, icon_rc.left, icon_rc.top,
 							icon, icon_size, icon_size, 0, nullptr, DI_NORMAL);
