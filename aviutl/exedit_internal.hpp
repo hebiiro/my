@@ -68,6 +68,8 @@ namespace my
 				ExEdit::LayerSetting** current_layer_setting_table = nullptr;
 				ExEdit::SceneSetting* scene_setting_table = nullptr;
 				AviUtl::EditHandle** editp = nullptr;
+				AviUtl::FileInfo* fi = nullptr;
+				LPSTR* string_buffer = nullptr;
 				int32_t* layer_width = nullptr;
 				int32_t* layer_height = nullptr;
 				int32_t* layer_visible_count = nullptr;
@@ -121,6 +123,13 @@ namespace my
 				int32_t (CDECL* update_object_table)() = nullptr;
 				void (CDECL* set_top_visible_frame)(int32_t frame) = nullptr;
 				void (CDECL* set_top_visible_layer)(int32_t layer) = nullptr;
+				void (CDECL* get_scene_size)(int32_t scene_index, int32_t* w, int32_t* h, int32_t u4) = nullptr;
+				BOOL (CDECL* is_scene_alpha_enabled)(int32_t scene_index) = nullptr;
+				LPSTR (CDECL* filter_to_string)(LPSTR buffer, ExEdit::Object* object, int32_t filter_index, uint32_t is_midpt) = nullptr;
+				BOOL (CDECL* save_exa)(int32_t object_index, int32_t filter_index, LPCSTR file_name) = nullptr;
+				void (CDECL* erase_object)(int32_t object_index) = nullptr;
+				int32_t (CDECL* load_exo_internal)(LPCSTR file_name, int32_t frame, int32_t layer) = nullptr;
+				void (CDECL* set_frame_number)(int32_t frame, AviUtl::EditHandle* editp, AviUtl::FilterPlugin* fp) = nullptr;
 			} function;
 		} address;
 
@@ -161,13 +170,15 @@ namespace my
 			assign_addr(address.variable.object_count, exedit + 0x00146250);
 			assign_addr(address.variable.sorted_object_count, exedit + 0x0015918C);
 			assign_addr(address.variable.exdata_table, exedit + 0x001E0FA8);
-			assign_addr(address.variable.next_object_table, exedit + 0x001592d8);
+			assign_addr(address.variable.next_object_table, exedit + 0x001592D8);
 			assign_addr(address.variable.object_slection_table, exedit + 0x00179230);
 			assign_addr(address.variable.object_selection_count, exedit + 0x00167D88);
 			assign_addr(address.variable.all_layer_setting_table, exedit + 0x00188498);
 			assign_addr(address.variable.current_layer_setting_table, exedit + 0x000A4058);
 			assign_addr(address.variable.scene_setting_table, exedit + 0x00177A50);
 			assign_addr(address.variable.editp, exedit + 0x001A532C);
+			assign_addr(address.variable.fi, exedit + 0x00178E78);
+			assign_addr(address.variable.string_buffer, exedit + 0x001A5328);
 			assign_addr(address.variable.layer_width, exedit + 0x001A52FC);
 			assign_addr(address.variable.layer_height, exedit + 0x000A3E20);
 			assign_addr(address.variable.layer_visible_count, exedit + 0x000A3FBC);
@@ -219,6 +230,13 @@ namespace my
 			assign_addr(address.function.update_object_table, exedit + 0x0002B0F0);
 			assign_addr(address.function.set_top_visible_frame, exedit + 0x00038C70);
 			assign_addr(address.function.set_top_visible_layer, exedit + 0x00038B70);
+			assign_addr(address.function.get_scene_size, exedit + 0x0002B980);
+			assign_addr(address.function.is_scene_alpha_enabled, exedit + 0x0002BA00);
+			assign_addr(address.function.filter_to_string, exedit + 0x00028830);
+			assign_addr(address.function.save_exa, exedit + 0x00028CA0);
+			assign_addr(address.function.erase_object, exedit + 0x00034500);
+			assign_addr(address.function.load_exo_internal, exedit + 0x00029200);
+			assign_addr(address.function.set_frame_number, exedit + 0x00045B20);
 
 			return TRUE;
 		}
@@ -328,6 +346,16 @@ namespace my
 		// aviutlの編集用ハンドルを返します。
 		//
 		AviUtl::EditHandle* get_editp() { return *address.variable.editp; }
+
+		//
+		// aviutlのファイル情報を返します。
+		//
+		AviUtl::FileInfo* get_file_info() { return address.variable.fi; }
+
+		//
+		// 拡張編集が確保している文字列バッファを返します。
+		//
+		LPSTR get_string_buffer() { return *address.variable.string_buffer; }
 
 		//
 		// 拡張編集ウィンドウ内でのレイヤーの幅(px)を返します。
@@ -569,6 +597,43 @@ namespace my
 		// タイムラインの最初に表示されるレイヤー番号をセットします。
 		//
 		void set_top_visible_layer(int32_t layer) { return address.function.set_top_visible_layer(layer); }
+
+		//
+		// 指定されたシーンの映像サイズを返します。
+		//
+		void get_scene_size(int32_t scene_index, int32_t* w, int32_t* h, int32_t u4) { return address.function.get_scene_size(scene_index, w, h, u4); }
+
+		//
+		// 指定されたシーンがアルファを持つ場合はTRUEを返します。
+		//
+		BOOL is_scene_alpha_enabled(int32_t scene_index) { return address.function.is_scene_alpha_enabled(scene_index); }
+
+		//
+		// 指定されたオブジェクトの指定されたフィルタを文字列化して返します。
+		//
+		LPSTR filter_to_string(LPSTR buffer, ExEdit::Object* object, int32_t filter_index, uint32_t is_midpt) { return address.function.filter_to_string(buffer, object, filter_index, is_midpt); }
+
+		//
+		// 指定されたオブジェクトの指定されたフィルタをexaファイルに書き込みます。
+		//
+		BOOL save_exa(int32_t object_index, int32_t filter_index, LPCSTR file_name) { return address.function.save_exa(object_index, filter_index, file_name); }
+
+		//
+		// 指定されたオブジェクトを削除します。
+		//
+		void erase_object(int32_t object_index) { return address.function.erase_object(object_index); }
+
+		//
+		// 指定された場所に指定されたexoファイルを読み込み、新しいフレーム数を返します。
+		// この関数を実行する前に、push_undo()を実行する必要があります。
+		// この関数を実行した後に、set_frame_number()などを実行する必要があります。
+		//
+		int32_t load_exo_internal(LPCSTR file_name, int32_t frame, int32_t layer) { return address.function.load_exo_internal(file_name, frame, layer); }
+
+		//
+		// フレーム数をセットします。
+		//
+		void set_frame_number(int32_t frame, AviUtl::EditHandle* editp, AviUtl::FilterPlugin* fp) { return address.function.set_frame_number(frame, editp, fp); }
 
 		//
 		// 拡張編集ウィンドウを再描画します。
