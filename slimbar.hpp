@@ -636,9 +636,8 @@ namespace my
 			// スコープ終了時にスリムバーを再描画するようにします。
 			my::scope_exit scope_exit([&]()
 			{
-				// ウィンドウテキストが更新されたので
-				// スリムバー全体を再描画します。
-				redraw(hwnd);
+				// NC領域を再描画します。
+				::SendMessage(hwnd, WM_NCPAINT, 0, 0);
 			});
 
 			// デフォルト処理を実行してウィンドウテキストを更新します。
