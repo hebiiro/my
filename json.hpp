@@ -228,7 +228,8 @@ namespace my::json
 		else
 			wp.showCmd = show_cmd;
 
-		read_rect(node, "normal", wp.rcNormalPosition);
+		if (my::get_style(hwnd) & WS_THICKFRAME)
+			read_rect(node, "normal", wp.rcNormalPosition);
 		read_point(node, "min", wp.ptMinPosition);
 		read_point(node, "max", wp.ptMaxPosition);
 
