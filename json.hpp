@@ -20,6 +20,17 @@ namespace my::json
 		try { child = node.at(name); } catch (...) {}
 	}
 
+	//
+	// ラムダ式を使用して子ノードを読み込みます。
+	//
+	inline void read_child_node(const n_json& root, const std::string& node_name, auto func)
+	{
+		return func(read_child(root, node_name));
+	}
+
+	//
+	// コレクションを使用して子ノードを読み込みます。
+	//
 	inline void read_child_nodes(const n_json& node, const std::string& name, auto func)
 	{
 		size_t index = 0;
@@ -297,6 +308,19 @@ namespace my::json
 		node[name] = child;
 	}
 
+	//
+	// ラムダ式を使用して子ノードを書き込みます。
+	//
+	inline void write_child_node(n_json& root, const std::string& node_name, auto func)
+	{
+		n_json node;
+		my::scope_exit scope_exit([&]() { write_child(root, node_name, node); });
+		return func(node);
+	}
+
+	//
+	// コレクションを使用して子ノードを書き込みます。
+	//
 	inline void write_child_nodes(n_json& node, const std::string& name, const auto& collection, auto func)
 	{
 		size_t index = 0;
