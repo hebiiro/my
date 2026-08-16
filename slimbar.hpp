@@ -39,6 +39,11 @@ namespace my
 			// ボタンの幅(%)です。
 			//
 			int32_t button_width = 200;
+
+			//
+			// アイコンのサイズ(%)です。
+			//
+			int32_t icon_size = 80;
 		} config;
 
 		//
@@ -174,9 +179,11 @@ namespace my
 
 			// 一番右のボタンのアイコン矩形を算出します。
 			auto icon_rc = button_rc;
-			auto icon_size = my::get_height(icon_rc);
+			auto icon_size = ::MulDiv(my::get_height(icon_rc), config.icon_size, 100);
 			icon_rc.left = (icon_rc.left + icon_rc.right) / 2 - icon_size / 2;
 			icon_rc.right = icon_rc.left + icon_size;
+			icon_rc.top = (icon_rc.top + icon_rc.bottom) / 2 - icon_size / 2;
+			icon_rc.bottom = icon_rc.top + icon_size;
 			::InflateRect(&icon_rc, -2, -2);
 
 			// ボタンを走査します。
@@ -742,9 +749,6 @@ namespace my
 					::DrawThemeBackground(theme, dc, MENU_BARITEM, MBI_HOT, &button.rc, nullptr);
 				}
 
-				// アイコン矩形を取得します。
-				auto icon_rc = button.icon_rc;
-
 				// アイコンのパートIDです。
 				auto part_id = 0;
 
@@ -755,11 +759,17 @@ namespace my
 				case HTMINBUTTON: part_id = MENU_SYSTEMMINIMIZE; break;
 				case HTSYSMENU:
 					{
+						// アイコン矩形を取得します。
+						auto icon_rc = button.rc;
+
+						// アイコンの描画位置を算出します。
+						auto size = my::get_height(icon_rc) - 4;
+						auto x = (icon_rc.left + icon_rc.right - size) / 2;
+						auto y = (icon_rc.top + icon_rc.bottom - size) / 2;
+
 						// システムメニューアイコンを描画します。
 						auto icon = (HICON)::GetClassLongPtr(hwnd, GCLP_HICONSM);
-						auto icon_size = my::get_height(icon_rc);
-						::DrawIconEx(dc, icon_rc.left, icon_rc.top,
-							icon, icon_size, icon_size, 0, nullptr, DI_NORMAL);
+						::DrawIconEx(dc, x, y, icon, size, size, 0, nullptr, DI_NORMAL);
 
 						break;
 					}
@@ -768,6 +778,9 @@ namespace my
 				// アイコンのパートIDが有効の場合は
 				if (part_id)
 				{
+					// アイコン矩形を取得します。
+					auto icon_rc = button.icon_rc;
+
 					// テーマを使用してアイコンを描画します。
 					::DrawThemeBackground(theme, dc, part_id, state_id, &icon_rc, nullptr);
 				}
