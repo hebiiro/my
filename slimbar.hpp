@@ -611,7 +611,7 @@ namespace my
 				auto rc = mi.rcWork;
 
 				// 最大化位置になるように矩形を広げます。
-				::InflateRect(&rc, rc.left - wp->x, rc.top - wp->y);
+				::InflateRect(&rc, -wp->x, -wp->y);
 
 				// 算出した矩形をウィンドウ位置に設定します。
 				wp->x = rc.left;
