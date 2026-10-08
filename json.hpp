@@ -230,20 +230,35 @@ namespace my::json
 		// ウィンドウプレースメントを取得します。
 		WINDOWPLACEMENT wp = { sizeof(wp) };
 		::GetWindowPlacement(hwnd, &wp);
-
 		wp.flags = WPF_SETMINPOSITION;
+
+		// showCmdと実際のウィンドウ表示状態が異なる場合があるので
+		// 一致するように調整します。
 		if (!::IsWindowVisible(hwnd)) wp.showCmd = SW_HIDE;
 
+		// ウィンドウ表示状態を読み込みます。
 		if (show_cmd == -1)
 			read_int(node, "show_cmd", wp.showCmd);
 		else
 			wp.showCmd = show_cmd;
 
-		if (my::get_style(hwnd) & WS_THICKFRAME)
-			read_rect(node, "normal", wp.rcNormalPosition);
+		// 元の矩形を取得しておきます。
+		auto rc = wp.rcNormalPosition;
+
+		// ウィンドウ位置を読み込みます。
+		read_rect(node, "normal", wp.rcNormalPosition);
 		read_point(node, "min", wp.ptMinPosition);
 		read_point(node, "max", wp.ptMaxPosition);
 
+		// リサイズ可能なウィンドウではない場合は
+		if (!(my::get_style(hwnd) & WS_THICKFRAME))
+		{
+			// 元のサイズを使用します。
+			wp.rcNormalPosition.right = wp.rcNormalPosition.left + my::get_width(rc);
+			wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + my::get_height(rc);
+		}
+
+		// ウィンドウプレースメントを設定します。
 		::SetWindowPlacement(hwnd, &wp);
 	}
 
