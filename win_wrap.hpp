@@ -4,195 +4,28 @@ namespace my
 {
 	// 以下のクラスは標準スマートポインタでハンドルを管理します。
 
-	namespace handle
-	{
-		inline const auto deleter = [](HANDLE x){ ::CloseHandle(x); };
-
-		template <typename T = HANDLE>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HANDLE>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
+	template <typename T, auto deleter>
+	struct handle_utils {
+		using remove_pointer_type = std::remove_pointer<T>::type;
+		using unique_ptr = std::unique_ptr<remove_pointer_type, decltype(deleter)>;
+		struct shared_ptr : std::shared_ptr<remove_pointer_type> {
 			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
+			shared_ptr(T x) : std::shared_ptr<remove_pointer_type>(x, deleter) {}
 			auto reset(T x) { return __super::reset(x, deleter); }
 		};
+		using weak_ptr = std::weak_ptr<remove_pointer_type>;
+	};
 
-		template <typename T = HANDLE>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace find_file
-	{
-		inline const auto deleter = [](HANDLE x){ if (x != INVALID_HANDLE_VALUE) ::FindClose(x); };
-
-		template <typename T = HANDLE>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HANDLE>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HANDLE>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace win_hook
-	{
-		inline const auto deleter = [](HHOOK x){ ::UnhookWindowsHookEx(x); };
-
-		template <typename T = HHOOK>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HHOOK>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HHOOK>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace win_event_hook
-	{
-		inline const auto deleter = [](HWINEVENTHOOK x){ ::UnhookWinEvent(x); };
-
-		template <typename T = HWINEVENTHOOK>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HWINEVENTHOOK>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HWINEVENTHOOK>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace icon
-	{
-		inline const auto deleter = [](HICON x){ ::DestroyIcon(x); };
-
-		template <typename T = HICON>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HICON>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HICON>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace menu
-	{
-		inline const auto deleter = [](HMENU x){ ::DestroyMenu(x); };
-
-		template <typename T = HMENU>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HMENU>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HMENU>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace theme
-	{
-		inline const auto deleter = [](HTHEME x){ ::CloseThemeData(x); };
-
-		template <typename T = HTHEME>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HTHEME>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HTHEME>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace gdi
-	{
-		inline const auto deleter = [](HGDIOBJ x){ ::DeleteObject(x); };
-
-		template <typename T = HGDIOBJ>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HGDIOBJ>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HGDIOBJ>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace dc
-	{
-		inline const auto deleter = [](HDC x){ ::DeleteDC(x); };
-
-		template <typename T = HDC>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HDC>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HDC>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
-
-	namespace dwp
-	{
-		inline const auto deleter = [](HDWP x){ if (x) ::EndDeferWindowPos(x); };
-
-		template <typename T = HDWP>
-		using unique_ptr = std::unique_ptr<typename std::remove_pointer<T>::type, decltype(deleter)>;
-
-		template <typename T = HDWP>
-		struct shared_ptr : std::shared_ptr<typename std::remove_pointer<T>::type>
-		{
-			shared_ptr() {}
-			shared_ptr(T x) : std::shared_ptr<typename std::remove_pointer<T>::type>(x, deleter) {}
-			auto reset(T x) { return __super::reset(x, deleter); }
-		};
-
-		template <typename T = HDWP>
-		using weak_ptr = std::weak_ptr<typename std::remove_pointer<T>::type>;
-	}
+	struct handle : handle_utils<HANDLE, [](HANDLE x) { ::CloseHandle(x); }> {};
+	struct find_file : handle_utils<HANDLE, [](HANDLE x) { if (x != INVALID_HANDLE_VALUE) ::FindClose(x); }> {};
+	struct win_hook : handle_utils<HHOOK, [](HHOOK x) { ::UnhookWindowsHookEx(x); }> {};
+	struct win_event_hook : handle_utils<HWINEVENTHOOK, [](HWINEVENTHOOK x) { ::UnhookWinEvent(x); }> {};
+	struct icon : handle_utils<HICON, [](HICON x) { ::DestroyIcon(x); }> {};
+	struct menu : handle_utils<HMENU, [](HMENU x) { ::DestroyMenu(x); }> {};
+	struct theme : handle_utils<HTHEME, [](HTHEME x) { ::CloseThemeData(x); }> {};
+	struct dwp : handle_utils<HDWP, [](HDWP x) { ::EndDeferWindowPos(x); }> {};
+	struct image_list : handle_utils<HIMAGELIST, [](HIMAGELIST x) { if (x) ::ImageList_Destroy(x); }> {};
+	struct registry_key : handle_utils<HKEY, [](HKEY x) { ::RegCloseKey(x); }> {};
 
 	// 以下のクラスは自作クラスでハンドルを管理します。
 

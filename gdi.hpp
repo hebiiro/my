@@ -167,8 +167,8 @@ namespace my
 		operator HDC() { return dc; }
 	};
 
-	namespace gdi
-	{
+	struct dc : handle_utils<HDC, [](HDC x) { ::DeleteDC(x); }> {};
+	template <typename T> struct gdi : handle_utils<T, [](HGDIOBJ x) { ::DeleteObject(x); }> {
 		using selector = GdiObjSelector;
-	}
+	};
 }

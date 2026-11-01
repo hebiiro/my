@@ -252,7 +252,7 @@ namespace my
 			const int hts[] = { _hts... };
 
 			// 再描画対象のリージョンです。
-			my::gdi::unique_ptr<HRGN> rgn(
+			my::gdi<HRGN>::unique_ptr rgn(
 				::CreateRectRgn(0, 0, 0, 0));
 
 			// 再描画フラグです。
@@ -268,7 +268,7 @@ namespace my
 					if (button.ht == ht)
 					{
 						// スリムバーボタンリージョンを作成します。
-						my::gdi::unique_ptr<HRGN> button_rgn(
+						my::gdi<HRGN>::unique_ptr button_rgn(
 							::CreateRectRgnIndirect(&button.rc));
 
 						// スリムバーボタンリージョンを結合します。
@@ -665,7 +665,7 @@ namespace my
 				auto uah_menu = (UAHMENU*)l_param;
 
 				// テーマを取得します。
-				my::theme::unique_ptr<> theme(::OpenThemeData(hwnd, VSCLASS_MENU));
+				my::theme::unique_ptr theme(::OpenThemeData(hwnd, VSCLASS_MENU));
 				auto part_id = MENU_BARBACKGROUND;
 				auto state_id = is_active ? MB_ACTIVE : MB_INACTIVE;
 
@@ -726,8 +726,8 @@ namespace my
 				// タイトル描画用フォントをセットします。
 				NONCLIENTMETRICS ncm = { sizeof(ncm) };
 				::SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
-				my::gdi::unique_ptr<HFONT> font(::CreateFontIndirect(&ncm.lfMenuFont));
-				my::gdi::selector font_selector(dc, font.get());
+				my::gdi<HFONT>::unique_ptr font(::CreateFontIndirect(&ncm.lfMenuFont));
+				my::gdi<HFONT>::selector font_selector(dc, font.get());
 
 				// タイトルを描画します。
 				::DrawThemeText(theme, dc, part_id, state_id,

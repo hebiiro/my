@@ -257,7 +257,7 @@ namespace my
 
 			// フォントのメトリックを取得します。
 			ClientDC dc(*this);
-			gdi::selector font_selector(dc, font);
+			gdi<HFONT>::selector font_selector(dc, font);
 			TEXTMETRIC tm = {}; ::GetTextMetrics(dc, &tm);
 
 			// フォントの高さを調整して返します。
